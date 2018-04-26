@@ -1,0 +1,18 @@
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:15:57.425Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:15:57.438Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:16:00.844Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:16:00.850Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:17:21.038Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:17:21.045Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:17:40.437Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:17:40.443Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:18:36.522Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:18:36.525Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:18:39.374Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:18:39.378Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:18:54.485Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:18:54.491Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T13:19:27.240Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T13:19:27.242Z"}
+{"error":{"code":111,"message":"This is not a valid GeoPoint"},"level":"error","message":"Error generating response. ParseError { code: 111, message: 'This is not a valid GeoPoint' }","timestamp":"2017-11-06T15:46:40.323Z"}
+{"code":111,"message":"This is not a valid GeoPoint","level":"error","timestamp":"2017-11-06T15:46:40.341Z"}

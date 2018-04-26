@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g=" crossorigin="anonymous"></script>
+    <script src="https://npmcdn.com/parse@1.10.1/dist/parse.js"></script>
+    <script>
+        $(document).ready(function() {
+            addData()
+        });
+
+        function addData() {
+            // make arr of object from cofizz elemnts
+            let elements = $("[class='individual-location openIt loc-type-1']");
+            let cofizz = [];
+            createData(cofizz, elements);
+            saveData(cofizz);
+        }
+
+        function saveData(cofizz) {
+            // contact with parseDB
+            Parse.initialize("aregfdsgfsdzfgs");
+            let serverURL = <%- JSON.stringify(serverURL) %>;
+            Parse.serverURL = serverURL;
+            let cofix_stores = Parse.Object.extend("cofix_stores");
+            //saving all data to DB
+            for (let i = 0; i < cofizz.length; i++) {
+                let store = new cofix_stores();
+                let point = new Parse.GeoPoint(cofizz[i].geoPoint);
+                store.set('geoPoint', point);
+                store.set('place_description', cofizz[i].place_description);
+                store.set('linkPictureStore', cofizz[i].linkPictureStore);
+                store.set('address', cofizz[i].address);
+                store.set('opening_hours', cofizz[i].opening_hours);
+                store.set('goToGoogleMap', cofizz[i].goToGoogleMap);
+                store.set('goToWaze', cofizz[i].goToWaze);
+                store.save()
+                    .then(data => console.log('save'))
+                    .catch(err => console.log(err));
+            }
+        }
+
+        function createData(arr, elements) {
+            for (let i = 0; i < elements.length; i++) {
+                let geoPoint,
+                    place_description = '',
+                    linkPictureStore = 'https://cdn.pbrd.co/images/GUYze1S.png',
+                    address = '',
+                    opening_hours = '',
+                    goToGoogleMap = '',
+                    goToWaze = '',
+                    obj = {};
+
+                try {
+                    let location = $("[class='individual-location openIt loc-type-1']")[i].children[5].innerHTML;
+                    location = location.replace('(', '');
+                    location = location.replace(')', '');
+                    location = location.split(', ');
+                    geoPoint = {
+                        latitude: parseFloat(location[0]),
+                        longitude: parseFloat(location[1])
+                    }
+                } catch (err) {}
+                try {
+                    //דרש שיפוץ ידני לאלמנטים במקום שמופיעים בצורה שונה
+                    let a = $("[class='individual-location openIt loc-type-1']")[i].children[2].children[8];
+                    if (a !== undefined) {
+                        a = a.innerText.trim();
+                    } else {
+                        a = '';
+                    }
+                    let b = $("[class='individual-location openIt loc-type-1']")[i].children[2].children[10];
+                    if (b !== undefined) {
+                        b = b.innerText.trim();
+                    } else {
+                        b = '';
+                    }
+                    place_description = a + ' ' + b;
+                } catch (err) {}
+                try {
+                    address = $("[id='address']")[i].innerText.replace('כתובת:', '').trim();
+                } catch (err) {}
+                try {
+                    opening_hours = $("[class='individual-location openIt loc-type-1']")[i].children[2].innerText;
+                    opening_hours = opening_hours.replace('קופיז בר', '');
+                    opening_hours = opening_hours.replace('הכשר מהדרין', '');
+                    opening_hours = opening_hours.replace('הכשר בד"צ העדה החרדית ירושלים', '');
+                    opening_hours = opening_hours.replace('בדץ בית יוסף', '');
+                    opening_hours = opening_hours.replace('הכשר בד"ץ בית יוסף', '').trim();
+                } catch (err) {}
+                // מוצא לבד לפי כתובת מתוך google maps
+                let location = address.split('-').join('');
+                location = location.split('  ').join(' ');
+                location = location.split('(').join('');
+                location = location.split(')').join('');
+                location = location.split(' ').join('%20');
+                //delete 'פינת..'
+                let subPosition = location.search('פינת');
+                if (subPosition > 0) {
+                    location = location.substr(0, subPosition);
+                }
+                goToGoogleMap = 'https://www.google.com/maps/search/?api=1&query=' + 'קופיז,%20' + location;
+                goToWaze = 'https://waze.com/ul?ll=' + geoPoint.latitude + ',' + geoPoint.latitude + '&amp;navigate=yes'
+
+                //save to obj:
+                obj['geoPoint'] = geoPoint;
+                obj['place_description'] = place_description;
+                obj['linkPictureStore'] = linkPictureStore;
+                obj['address'] = address;
+                obj['opening_hours'] = opening_hours;
+                obj['goToGoogleMap'] = goToGoogleMap;
+                obj['goToWaze'] = goToWaze;
+                arr.push(obj);
+                // console.log(obj);
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="individual-location openIt loc-type-1">
+        <img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/05/סניף_קופיז_בן_יהודה_14_ירושלים.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף קופיז בן יהודה 14 ירושלים">
+        <h2>ירושלים – מדרחוב בן יהודה</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">בן יהודה 14, ירושלים, ישראל. (מדרחוב)</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.780854, 35.21382040000003)</p>
+        <a href="https://goo.gl/maps/UeXAZ" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/05/סניף_קופיז_יפו_58_ירושלים.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף קופיז יפו 58 ירושלים">
+        <h2>ירושלים – יפו 58</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">יפו 58, ירושלים, ישראל.</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.7835018, 35.217460800000026)</p>
+        <a href="https://goo.gl/maps/IZydN" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/יפו_31_ירושלים.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף יפו 31 ירושלים">
+        <h2>ירושלים – יפו 31 ירושלים</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address"> יפו 31, ירושלים, ישראל</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.7810116, 35.22087340000007)</p>
+        <a href="https://goo.gl/maps/xg0He" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/סניף_מחנה_יהודה.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף שוק מחנה יהודה">
+        <h2>ירושלים – שוק מחנה יהודה</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">מחנה יהודה 10, ירושלים, ישראל‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.7850567, 35.21234879999997)</p>
+        <a href="https://goo.gl/maps/29hve" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="800" height="600" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4303.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4303.png 800w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4303-300x225.png 300w"
+            sizes="(max-width: 800px) 100vw, 800px">
+        <h2>ירושלים – צומת בר אילן ירושלים</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר <span class="st"><em>בד"צ העדה החרדית</em> ירושלים</span><br>
+    </strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">שמואל הנביא, 97 ירושלים, ישראל (צומת בר אילן)</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.7958484, 35.219683799999984)</p>
+        <a href="https://goo.gl/maps/XHrzq" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/הרצל_157_רחובות.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף הרצל 157 רחובות">
+        <h2>רחובות – הרצל 157 רחובות</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">הרצל 157, רחובות, ישראל‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.8962514, 34.81095299999993)</p>
+        <a href="https://goo.gl/maps/CmkGs" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/חיים_עוז-_13_פתח_תקווה.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="חיים עוזר 13 פתח תקווה">
+        <h2>פתח תקווה – חיים עוזר 13</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">חיים עוזר 13, פתח תקווה, ישראל‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0890535, 34.88661030000003)</p>
+        <a href="https://goo.gl/maps/KYR66" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="960" height="1040" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1397-e1434399974817.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1397-e1434399974817.jpeg 960w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1397-e1434399974817-277x300.jpeg 277w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1397-e1434399974817-945x1024.jpeg 945w"
+            sizes="(max-width: 960px) 100vw, 960px">
+        <h2>ירושלים – תפארת ישראל 10</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר מהדרין בדץ בית יוסף</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">תפארת ישראל 10 ירושלים‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.7759109, 35.231433100000004)</p>
+        <a href="https://goo.gl/maps/jNM35d8vr7B2" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="1280" height="720" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8264.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8264.jpeg 1280w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8264-300x169.jpeg 300w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8264-1024x576.jpeg 1024w"
+            sizes="(max-width: 1280px) 100vw, 1280px">
+        <h2>תל אביב – רמבם</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">רמבם 26, תל אביב, ישראל. (פינת אלנבי 82)</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0675195, 34.77084439999999)</p>
+        <a href="https://goo.gl/maps/oGIDx" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="800" height="600" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_0313.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_0313.png 800w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_0313-300x225.png 300w"
+            sizes="(max-width: 800px) 100vw, 800px">
+        <h2>תל אביב – תחנה המרכזית החדשה</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">תחנה המרכזית החדשה, תל אביב, ישראל</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0560951, 34.77927090000003)</p>
+        <a href="https://goo.gl/maps/E87Zg" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="1280" height="960" src="http://www.cofizz.co.il/wp-content/uploads/2015/04/תל_אביב_שוק_הפשפשים.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="שוק הפשפשים" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/04/תל_אביב_שוק_הפשפשים.jpg 1280w, http://www.cofizz.co.il/wp-content/uploads/2015/04/תל_אביב_שוק_הפשפשים-300x225.jpg 300w, http://www.cofizz.co.il/wp-content/uploads/2015/04/תל_אביב_שוק_הפשפשים-1024x768.jpg 1024w"
+            sizes="(max-width: 1280px) 100vw, 1280px">
+        <h2>תל אביב – שוק הפשפשים</h2>
+        <p class="loc-content"><strong>:שעות פתיחה</strong><br>
+            <strong>א-ה:</strong> 06:30 עד 23:00<br>
+            <strong>שישי:</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">עולי ציון 10, תל אביב יפו,ישראל (שוק הפשפשים) ‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0531499, 34.75660199999993)</p>
+        <a href="https://goo.gl/maps/2kynj" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/ביאליק_77_רמת_גן.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סיניף ביאליק 77 רמת גן">
+        <h2>רמת גן – ביאליק 77</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">ביאליק 77, רמת גן, ישראל‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0855495, 34.81113789999995)</p>
+        <a href="https://goo.gl/maps/hoLcC" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="1280" height="960" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1420.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1420.jpeg 1280w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1420-300x225.jpeg 300w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_1420-1024x768.jpeg 1024w"
+            sizes="(max-width: 1280px) 100vw, 1280px">
+        <h2>נתניה – סמילנסקי</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">סמילנסקי 2, נתניה, ישראל‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.3286415, 34.85634440000001)</p>
+        <a href="https://goo.gl/maps/NeIH3" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="584" height="842" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4282-e1434399883833.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4282-e1434399883833.jpeg 584w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4282-e1434399883833-208x300.jpeg 208w"
+            sizes="(max-width: 584px) 100vw, 584px">
+        <h2>חיפה – הרצל 20</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">הרצל 20, חיפה, ישראל (אדר) </span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.8110241, 34.99788509999996)</p>
+        <a href="https://goo.gl/maps/v9zyK" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="640" height="480" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/קריות-טוב.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/קריות-טוב.png 640w, http://www.cofizz.co.il/wp-content/uploads/2015/06/קריות-טוב-300x225.png 300w"
+            sizes="(max-width: 640px) 100vw, 640px">
+        <h2>חיפה – קרית אתא</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">חלוצי התעשייה 2, חיפה, ישראל (קירת אתא)</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.8110203, 35.06831209999996)</p>
+        <a href="https://goo.gl/maps/KNxnH" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/כיכר_פריז_חיפה.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף כיכר פריז חיפה">
+        <h2>חיפה – נתנזון 18</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">נתנזון 18, חיפה, ישראל (כיכר פריז) </span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.8177126, 34.9996261)</p>
+        <a href=" https://goo.gl/maps/8qUcG" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/סניף_קופיז_הנשיא_133_חיפה.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף קופיז הנשיא 133 חיפה">
+        <h2>חיפה – הנשיא 133</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">שדרות הנשיא 133, חיפה, ישראל‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.8031085, 34.98669689999997)</p>
+        <a href="https://goo.gl/maps/4JyFF" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="1600" height="900" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/באר-שבע-טוב.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/באר-שבע-טוב.png 1600w, http://www.cofizz.co.il/wp-content/uploads/2015/06/באר-שבע-טוב-300x169.png 300w, http://www.cofizz.co.il/wp-content/uploads/2015/06/באר-שבע-טוב-1024x576.png 1024w"
+            sizes="(max-width: 1600px) 100vw, 1600px">
+        <h2>תחנה מרכזית – באר שבע</h2>
+        <p class="loc-content"><strong>:שעות פתיחה</strong><br>
+            <strong>א-ה:</strong> 06:30 עד 23:00<br>
+            <strong>שישי:</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">תחנה מרכזית – באר שבע‭</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.2431386, 34.7969703)</p>
+        <a href="https://goo.gl/maps/gJ5px" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="900" height="1600" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/עפו.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/עפו.png 900w, http://www.cofizz.co.il/wp-content/uploads/2015/06/עפו-169x300.png 169w, http://www.cofizz.co.il/wp-content/uploads/2015/06/עפו-576x1024.png 576w"
+            sizes="(max-width: 900px) 100vw, 900px">
+        <h2>עפולה – קאנטרי קלאב</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">שדרות יצחק רבין 1, עפולה, ישראל</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.6193937, 35.30889849999994)</p>
+        <a href="https://goo.gl/maps/1caEW" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="584" height="842" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4282-e1434399883833.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4282-e1434399883833.jpeg 584w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_4282-e1434399883833-208x300.jpeg 208w"
+            sizes="(max-width: 584px) 100vw, 584px">
+        <h2>פתח תקווה – ברון הירש 9</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">ברון הירש 9 פתח תקווה, ישראל</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0898111, 34.88241429999994)</p>
+        <a href="https://goo.gl/maps/jG02d" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="640" height="640" src="http://www.cofizz.co.il/wp-content/uploads/2015/07/הרצל-71.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/07/הרצל-71.png 640w, http://www.cofizz.co.il/wp-content/uploads/2015/07/הרצל-71-150x150.png 150w, http://www.cofizz.co.il/wp-content/uploads/2015/07/הרצל-71-300x300.png 300w"
+            sizes="(max-width: 640px) 100vw, 640px">
+        <h2>ראשון לציון – הרצל 71</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">הרצל 71 ראשון לציון, ישראל</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.9657426, 34.802999)</p>
+        <a href="https://goo.gl/maps/PmOxK" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/סוקולוב_40_חולון.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף סוקולוב 40 חולון">
+        <h2>ראשון לציון – רוטשילד 49</h2>
+        <p class="loc-content"><strong>שעות פתיחה</strong><br>
+            <strong>א-ה:</strong> 06:30 עד 23:00<br>
+            <strong>שישי:</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">רוטשילד 49 ראשון  לציון, ישראל</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.9638285, 34.80081300000006)</p>
+        <a href="https://goo.gl/maps/E4xbu" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="640" height="480" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/קריות-טוב.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/קריות-טוב.png 640w, http://www.cofizz.co.il/wp-content/uploads/2015/06/קריות-טוב-300x225.png 300w"
+            sizes="(max-width: 640px) 100vw, 640px">
+        <h2>נתיבות – דר סמילו 48</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <span style="color: #ca1118;"><strong>קופיז בר</strong></span><br>
+            <strong>הכשר <span dir="rtl"><span style="color: #1a0dab;">בד"ץ בית יוסף</span></span></strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">דר סמילו 48 בנתיבות.ישראל</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.424993, 34.600088)</p>
+        <a href="https://goo.gl/maps/rF75m" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="1280" height="960" src="http://www.cofizz.co.il/wp-content/uploads/2015/04/IMG_0213.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="תל אביב קינג גורג 14" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/04/IMG_0213.jpg 1280w, http://www.cofizz.co.il/wp-content/uploads/2015/04/IMG_0213-300x225.jpg 300w, http://www.cofizz.co.il/wp-content/uploads/2015/04/IMG_0213-1024x768.jpg 1024w"
+            sizes="(max-width: 1280px) 100vw, 1280px">
+        <h2>תחנה מרכזית – ירושלים</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">תחנה מרכזית - ירושלים</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.7888727, 35.20314910000002)</p>
+        <a href="https://www.google.com/maps/place/%D7%A7%D7%95%D7%A4%D7%99%D7%96%E2%80%AD/@31.7886855,35.2051551,17z/data=!3m1!4b1!4m5!3m4!1s0x1502d6300edd9b55:0x258ea3c0fcf5be2d!8m2!3d31.7886855!4d35.2029664" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="284" height="160" src="http://www.cofizz.co.il/wp-content/uploads/2015/10/כרמיאל.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="">
+        <h2>כרמיאל – שדרות נשיאי ישראל 100</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address"> כרמיאל - שדרות נשיאי ישראל 100</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.9086855, 35.29411189999996)</p>
+        <a href="https://goo.gl/maps/Sq5umKoENgw" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="1280" height="720" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8537.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8537.jpeg 1280w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8537-300x169.jpeg 300w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_8537-1024x576.jpeg 1024w"
+            sizes="(max-width: 1280px) 100vw, 1280px">
+        <h2>רוטשילד 30 – בת ים</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">רוטשילד 30 - בת ים</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0268812, 34.74698760000001)</p>
+        <a href="https://goo.gl/maps/qLZFaWm1oXR2" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="720" height="540" src="http://www.cofizz.co.il/wp-content/uploads/2016/06/עפולה-תחנה-מרכזית.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2016/06/עפולה-תחנה-מרכזית.jpg 720w, http://www.cofizz.co.il/wp-content/uploads/2016/06/עפולה-תחנה-מרכזית-300x225.jpg 300w"
+            sizes="(max-width: 720px) 100vw, 720px">
+        <h2>בעפולה – תחנה מרכזית</h2>
+        <p class="loc-content"><strong>שעות פתיחה<br>
+    א-ה: 06:30 עד 23:00<br>
+    שישי: 06:00 עד שעתיים מכניסת השבת<br>
+    שבת: פתוח שעה אחרי יציאת שבת</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">בעפולה תחנה מרכזית</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.607535, 35.29217300000005)</p>
+        <a href="https://goo.gl/maps/7ooAUfYCXzQ2" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/05/סניף_קופיז_יפו_58_ירושלים.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="סניף קופיז יפו 58 ירושלים">
+        <h2>חולון – סוקולוב 82</h2>
+        <p class="loc-content"><strong>שעות פתיחה:</strong><br>
+            <strong>א-ה</strong> 06:30 עד 23:00<br>
+            <strong>שישי</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">חולון – סוקולוב 82</span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0225032, 34.778049399999986)</p>
+        <a href="https://goo.gl/maps/ZSKD6o43ia42" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="720" height="960" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/1780692_453482448085735_1530470345_n.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/1780692_453482448085735_1530470345_n.jpg 720w, http://www.cofizz.co.il/wp-content/uploads/2015/06/1780692_453482448085735_1530470345_n-225x300.jpg 225w"
+            sizes="(max-width: 720px) 100vw, 720px">
+        <h2>דרך בן גוריון 20 – רמת גן</h2>
+        <p class="loc-content"><strong>:שעות פתיחה</strong><br>
+            <strong>א-ה:</strong> 06:30 עד 23:00<br>
+            <strong>שישי:</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">דרך בן גוריון 20 - רמת גן </span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.09386080000001, 34.82196959999999)</p>
+        <a href="https://goo.gl/maps/XujoC7WiWSx" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="200" height="150" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/image_snifim.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="">
+        <h2>האצ"ל 2 – שוק התקווה תל אביב</h2>
+        <p class="loc-content"><strong>:שעות פתיחה</strong><br>
+            <strong>א-ה:</strong> 06:30 עד 23:00<br>
+            <strong>שישי:</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">האצ"ל 2 - שוק התקווה תל אביב </span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(32.0528098, 34.790466899999956)</p>
+        <a href="https://goo.gl/maps/LbjRkyxN8Hr" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+    <div class="individual-location openIt loc-type-1"><img width="800" height="600" src="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_0313.png" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" srcset="http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_0313.png 800w, http://www.cofizz.co.il/wp-content/uploads/2015/06/IMG_0313-300x225.png 300w"
+            sizes="(max-width: 800px) 100vw, 800px">
+        <h2>גרנד קניון – באר שבע</h2>
+        <p class="loc-content"><strong>:שעות פתיחה</strong><br>
+            <strong>א-ה:</strong> 06:30 עד 23:00<br>
+            <strong>שישי:</strong> 06:00 עד שעתיים מכניסת השבת<br>
+            <strong>שבת:</strong> פתוח שעה אחרי יציאת שבת<br>
+            <strong>הכשר מהדרין</strong></p>
+        <p class="addCon"> <strong> כתובת: </strong> <br> <span id="address">גרנד קניון - באר שבע </span></p>
+        <p style="display:none" class="distance"></p>
+        <p style="display:none" class="latLong">(31.2503705, 34.77173360000006)</p>
+        <a href="https://goo.gl/maps/mEGgdZYUXLp" target="_blank"> <img class="theMarker" src="http://www.cofizz.co.il/wp-content/themes/cofizz/images/marker.png"> </a>
+    </div>
+
+</body>
+
+</html>

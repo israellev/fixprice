@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Find FixPrice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta name="viewport" content="initial-scale=1.0, user-scalable=no"> -->
+    <meta charset="utf-8">
+    <script src="https://npmcdn.com/parse@1.10.1/dist/parse.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.5.2/Rx.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g=" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link href="/assets/styles/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="header">
+        <img id="headerPic" src="/assets/images/stores.jpg" />
+        <img id="headerPic" src="/assets/images/coffiz.png" />
+        <div id="headerText">מצא את חנויות <b>fix Price</b> הקרובות אליך</div>
+    </div>
+
+    <div class="form-group container-fluid">
+        <div class="navbar navbar-light bg-faded justify-content-between ">
+            <label id="label">הכנס את מיקומך</label>
+            <div class="form-inline ">
+                <div id="find">חפש</div>
+                <div id="divfindAddress">
+                    <input id="findAddress" class="form-control mr-sm-2 search" placeholder=" ....... " />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="map"></div>
+    <div id="div"></div>
+    <script src="/assets/js/index.js"></script>
+    <script>
+        // shortcut to Rx
+        let obs = Rx.Observable;
+        // connect parse with server DB
+        Parse.initialize("aregfdsgfsdzfgs");
+        // for fits url of server and localhost
+        let serverURL = <%- JSON.stringify(serverURL) %>;
+        Parse.serverURL = serverURL;
+        let Stores = Parse.Object.extend("cofix_stores");
+        // loadFromCofix(serverURL);
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAifpJWKPkznAqsFXysXSBlxCrg1smuJTU&callback=initMap">
+    </script>
+</body>
+
+</html>
